@@ -57,11 +57,11 @@ The following are outside this project.
 | This specification, README, contribution guide | Present |
 | Lean modules, examples, and proof scripts | Absent |
 | `lakefile`, `lean-toolchain`, `lake-manifest`, dependency pins | Absent |
-| CI workflows, axiom audits, `sorry` scans | Absent |
+| CI workflows and a kernel axiom audit | Absent. The milestone 1 note records a source-text scan for `sorry`; that scan is not a build |
 | Datasets, CSV fixtures, certificate files | Absent |
 | Upstream pull requests from this effort | None |
 | Zulip or email sent by this effort | None |
-| Milestones 1–4 | Proposed only |
+| Milestones 1–4 | Proposed. Milestone 1's survey note is [docs/milestone1-audit.md](docs/milestone1-audit.md). It adopts no dependency and selects no upstream pull request. The Zulip discussion remains deferred |
 
 Future scaffolding is described in section 8.5 so that implementers inherit a policy. Describing it does not create it. A reader who looks at the tree and finds only Markdown should believe the tree.
 
@@ -75,7 +75,7 @@ Two upstream libraries and one future companion have different jobs.
 
 **StatLean** is the statistics library to reuse, audit, and coordinate with. The default is to depend on a reviewed StatLean surface, or to contribute a missing piece there, rather than to copy its developments into this repository. Copying is a last resort after the audit in milestone 1 records a reason (license incompatibility, an unreviewed `sorry` on the needed surface, or a maintained-status decision). No such reason is recorded yet, and no dependency is adopted yet.
 
-**The companion**, meaning the future Lean package in this repository, holds the executable finite layer: parsers, canonical certificate formats, a command-line checker, versioned schema identifiers, adapters that let Python or R emit proposals, and demonstrations. It calls upstream theorems for the measure-theoretic content. It does not reimplement those theorems in order to own them.
+**The companion**, meaning the future Lean package in this repository, holds the executable finite layer: parsers, canonical certificate formats, a command-line checker, versioned schema identifiers, producer adapters, and demonstrations. It calls upstream theorems for the measure-theoretic content. It does not reimplement those theorems in order to own them. Adapters are not part of the trusted checker (section 5.4).
 
 ```text
 untrusted producer          companion checker              upstream mathematics
@@ -120,6 +120,12 @@ Imported theorem statements are data. The checker trusts a result because it ela
 
 Finance-shaped demonstrations are in scope only as illustrations of a certificate whose hypotheses are written down. A series of prices does not become independent, identically distributed, stationary, or exchangeable by being placed in an example. Synthetic series are the default. Public series, if used later, need a license that allows redistribution, and the example text states what was not proved about them. Customer market data is out of scope.
 
+### 5.4 Producers are replaceable
+
+Python and R are pragmatic first candidates for proposal adapters, because statistical tooling and communities already exist there. That is not a forecast that either language will lead in five or ten years, and neither language is a required dependency of the checker.
+
+The verification boundary is the protocol. A versioned certificate schema, a stated mathematical semantics, and a Lean checker decide acceptance. The checker does not link to a Python or R runtime, and it does not treat a language's private objects, serialization quirks, or APIs as evidence. Any producer that emits a certificate the schema accepts may propose a result. Julia, a later probabilistic programming language, or another ecosystem may gain an adapter. This plan does not commit to writing those adapters or to choosing among them. No adapter is implemented.
+
 ## 6. Upstream contribution split
 
 | Work | Where it goes |
@@ -127,7 +133,7 @@ Finance-shaped demonstrations are in scope only as illustrations of a certificat
 | A generic theorem about measures, kernels, posteriors, conjugacy, permutations, empirical measures, or dependence, shown to be missing, with an API that fits | mathlib, as a small pull request |
 | A statistics result in the style of an existing StatLean area, or a repair to one | StatLean, after the milestone 1 audit and coordination |
 | Docstrings, naming, lint, build, or CI fixes upstream | The upstream repository, in a small reviewable change, with license attribution preserved |
-| Executable parsers, CSV and other input grammars, CLI, certificate formats, Python or R adapters, demonstrations | This companion, once implementation of that milestone has started |
+| Executable parsers, CSV and other input grammars, CLI, certificate formats, demonstrations, and adapters for producers that speak the certificate protocol | This companion, once implementation of that milestone has started. Python and R are pragmatic first candidates, not a required dependency (section 5.4) |
 | A duplicate of `integral_empiricalMeasure` or of Beta–Bernoulli conjugacy | Nowhere. They are already in the inspected StatLean revision. The companion may *use* them after an audit |
 
 Pull requests are small. A change that mixes a new mathematical definition, a refactor, and a stylistic sweep waits and is split.
@@ -144,7 +150,7 @@ License attribution travels with reused code. Milestone 1 records the license of
 
 ## 7. Trust boundary
 
-The producer of a proposal may be Python, R, or another program. It is outside the trusted base. It may suggest counts, posterior parameters, p-values, sampler traces, or bounds. The Lean development accepts a suggestion only by checking it.
+The producer of a proposal may be Python, R, or any other program that emits the certificate protocol (section 5.4). It is outside the trusted base. It may suggest counts, posterior parameters, p-values, sampler traces, or bounds. The Lean development accepts a suggestion only by checking it.
 
 ### 7.1 What a successful check can establish
 
@@ -405,11 +411,15 @@ These items are open. Writing them down is not a resolution.
 
 **Asymptotic permutation level.** The inspected two-sample limit theorem is carefully asymmetric in its two variances. Using the milestone 3 exact p-value as if it were an asymptotic level-`α` test for equal population means, under unequal variances and unbalanced sizes, would repeat a mistake the StatLean header already flags. This plan does not license that use.
 
-**First pull request.** The topic is to be determined after the milestone 1 gap audit. This document does not invent one.
+**Trust creep.** Convenience features (a native binary, a helper in some producer language that "just" counts, a cached axiom) widen the trusted base. Section 7.3 is the checklist against that creep. It is only a checklist until the code exists.
 
-**Maintenance and license.** StatLean and mathlib are external projects. Their licenses, axiom footprints, and `sorry` status on the surfaces we might use were not audited here. A dependency adopted before that audit would be a process failure.
+**Ecosystem lock-in.** Treating one producer language as part of the trusted base, or letting its numeric types and object formats into the certificate, would tie the checker to that ecosystem. Section 5.4 keeps the checker on the protocol instead. The schema that would enforce this does not exist yet.
 
-**Trust creep.** Convenience features (a native binary, a Python helper that "just" counts, a cached axiom) widen the trusted base. Section 7.3 is the checklist against that creep. It is only a checklist until the code exists.
+**Protocol portability and evolution.** A later adapter, in Julia or in a language that does not exist yet, still has to meet the same schema and semantics. How a schema version changes without accepting a stale file, a mismatched field, or a producer-specific payload is open. Unknown versions remain rejections (section 5.2).
+
+**Maintenance and license, after the milestone 1 note.** `docs/milestone1-audit.md` records a first reading. It does not adopt a dependency: the surfaces were not built, axioms were not printed, and the copyright notices are not uniform. Adopting a dependency before those items are closed would still be a process failure.
+
+**First pull request, after that note.** The milestone 1 audit does not select an upstream topic. Sample empirical integration and Beta–Bernoulli conjugacy stay unavailable as "new" results. Outreach that would ask where a future lemma belongs is deferred, not done.
 
 ## 10. Reading a future claim
 

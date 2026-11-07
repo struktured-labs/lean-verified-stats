@@ -2,9 +2,11 @@
 
 Open community research toward dataset-to-machine-checked statistical inference in Lean. The aim is to complement [mathlib](https://github.com/leanprover-community/mathlib4) and [StatLean](https://github.com/StatLean/Stat-Lean).
 
-**Status: documentation and planning only.** This repository contains this note, the research specification, and a short contribution guide. It has no Lean sources, examples, Lake project, toolchain or dependency pins, scripts, datasets, or CI workflows. The four milestones in the specification are proposals. None is implemented. This repository states no schedule and no guarantee that a milestone will succeed.
+**Status: documentation and planning only.** This repository contains this note, the research specification, a milestone 1 audit, and a short contribution guide. It has no Lean sources, examples, Lake project, toolchain or dependency pins, scripts, datasets, or CI workflows. The four milestones in the specification are proposals. None is implemented. This repository states no schedule and no guarantee that a milestone will succeed.
 
 Read the specification: [SPEC.md](SPEC.md). It records scope, architecture, milestones and acceptance criteria, the upstream contribution split, the trust boundary, open questions, and the provenance of sources that were actually inspected.
+
+The milestone 1 survey is [docs/milestone1-audit.md](docs/milestone1-audit.md). It is a read-only gap note: no dependency is adopted, no upstream topic is selected, and the proposed community discussion is deferred.
 
 While the repository is still a plan, [CONTRIBUTING.md](CONTRIBUTING.md) says what a change may contain and how upstream contact is handled.
 
